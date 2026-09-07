@@ -1,0 +1,33 @@
+workflows:
+  lexishikhi-android:
+    name: LexiShikhi Android API 36
+    max_build_duration: 60
+    environment:
+      flutter: stable
+    scripts:
+      - name: Extract LexiShikhi source
+        script: |
+          rm -rf app_source
+          mkdir -p app_source
+          unzip -q LexiShikhi_Source.zip -d app_source
+      - name: Prepare Android project
+        script: |
+          cd app_source
+          flutter create . --platforms=android --org com.lexishikhi --project-name lexishikhi
+          python3 tool/patch_android.py
+          python3 tool/install_icons.py
+      - name: Get Flutter packages
+        script: |
+          cd app_source
+          flutter pub get
+      - name: Build release APK
+        script: |
+          cd app_source
+          flutter build apk --release
+      - name: Build release AAB
+        script: |
+          cd app_source
+          flutter build appbundle --release
+    artifacts:
+      - app_source/build/app/outputs/flutter-apk/*.apk
+      - app_source/build/app/outputs/bundle/release/*.aab
